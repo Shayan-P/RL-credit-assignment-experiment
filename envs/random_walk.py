@@ -1,6 +1,5 @@
 import networkx as nx
 import gymnasium as gym
-import numpy as np
 
 
 class RandomWalkEnv(gym.Env):
@@ -24,6 +23,7 @@ class RandomWalkEnv(gym.Env):
 
     @staticmethod
     def create_graph():
+        # todo change this graph and randomize it later...
         G = nx.Graph()
         G.add_edge(0, 1, weight=1)
         G.add_edge(1, 2, weight=2)
@@ -34,12 +34,13 @@ class RandomWalkEnv(gym.Env):
         G.add_edge(2, 4, weight=3)
         return G
 
-    def reset(self):
+    def reset(self, seed=None, **kwargs):
         self.cur_vertex = self.starting_vertex
         self.walk = [self.cur_vertex]
         self.step_count = 0
         self.step_count_limit = 8  # todo set this based on the graph
-        return self.cur_vertex
+        info = {}
+        return self.cur_vertex, info
 
     def step(self, action):
         observations, rewards, termination, truncation, infos = self.cur_vertex, 0, False, False, {}
@@ -68,6 +69,7 @@ class RandomWalkEnv(gym.Env):
         return observations, rewards, termination, truncation, infos
 
     def render(self):
+        # todo later we can add render_human flag to the environment so that it visualizes as we are training... (in human mode)
         pos = nx.spring_layout(self.G)
 
         # Plot the graph

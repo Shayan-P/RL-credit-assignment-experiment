@@ -2,3 +2,5 @@ experimental_notebooks
 **/.ipynb_checkpoints
 **/.idea
 **/.vscode
+**/__pycache__
+**/**/__pycache__
