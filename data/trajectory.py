@@ -50,7 +50,7 @@ class TrajectoryDataset:
             self.storage.append(self.get_item(i))
             all_states.extend(self.storage[-1].observations)
 
-        self._state_mean, self._state_std = np.mean(all_states), np.std(all_states)
+        self._state_mean, self._state_std = np.mean(all_states, axis=0), np.std(all_states, axis=0)
         self._reward_scale = self.get_reward_scale()
 
         for traj in self.storage:
@@ -76,4 +76,4 @@ class TrajectoryDataset:
 
     def action_dim(self):
         self.cache_if_still_havent()
-        return self.storage[0].action[0].shape[-1]
+        return self.storage[0].actions[0].shape[-1]

@@ -37,7 +37,7 @@ class RandomWalkDataset(TrajectoryDataset):
         return TrajectoryData(
             observations=self.one_hot_state(observations),
             actions=self.one_hot_action(actions),
-            rewards=np.array(rewards),
+            rewards=np.array(rewards).astype(float),
             dones=np.array(dones)
         )
 
