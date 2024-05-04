@@ -1,3 +1,4 @@
+import gym
 import torch
 
 from gymnasium.spaces import Space
@@ -5,10 +6,10 @@ from stable_baselines3.common.policies import BasePolicy
 
 
 class RandomPolicy(BasePolicy):
-    def __init__(self, ob_space: Space, ac_space: Space, **kwargs):
-        super(BasePolicy, self).__init__(action_space=ac_space, observation_space=ob_space)
-        self.ob_space = ob_space
-        self.ac_space = ac_space
+    def __init__(self, env: gym.Env):
+        super(BasePolicy, self).__init__(action_space=env.action_space, observation_space=env.observation_space)
+        self.ob_space = env.observation_space
+        self.ac_space = env.action_space
 
     def _predict(self, obs, deterministic=False):
         batch = obs.shape[0]
