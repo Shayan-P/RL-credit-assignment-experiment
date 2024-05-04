@@ -3,7 +3,7 @@ import torch.nn as nn
 
 from mingpt.model import GPT
 
-from datasets.trajectory import TrajectoryDataset
+from data.trajectory import TrajectoryDataset
 
 
 class DecisionTransformer(nn.Module):

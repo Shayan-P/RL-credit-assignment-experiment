@@ -3,7 +3,7 @@ import torch
 
 from algorithms.sequence_models.base_trainer import Trainer
 from algorithms.sequence_models.utils import discount_cumsum
-from datasets.trajectory import TrajectoryDataset
+from data.trajectory import TrajectoryDataset
 
 SPLIT_SEQUENCE_LENGTH = 32
 BATCH_SIZE_DEFAULT = 256

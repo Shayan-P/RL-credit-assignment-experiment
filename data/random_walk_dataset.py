@@ -3,7 +3,7 @@ import numpy as np
 
 from envs.random_walk import RandomWalkEnv
 from algorithms.random_policy import RandomPolicy
-from .trajectory import TrajectoryDataset, TrajectoryData
+from data.trajectory import TrajectoryDataset, TrajectoryData
 
 
 class RandomWalkDataset(TrajectoryDataset):
@@ -38,7 +38,7 @@ class RandomWalkDataset(TrajectoryDataset):
             observations=self.one_hot_state(observations),
             actions=self.one_hot_action(actions),
             rewards=np.array(rewards),
-            dones=np.array(np.ndarray)
+            dones=np.array(dones)
         )
 
     @staticmethod
