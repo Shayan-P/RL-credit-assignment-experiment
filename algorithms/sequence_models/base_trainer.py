@@ -2,13 +2,15 @@ import numpy as np
 import abc
 import time
 
+from data.trajectory import TrajectoryDataset
+
 
 class Trainer:
     def __init__(self, model, optimizer, batch_size, trajectories, loss_fn, device, scheduler=None, eval_fns=None):
         self.model = model
         self.optimizer = optimizer
         self.batch_size = batch_size
-        self.trajectories = trajectories
+        self.trajectories: TrajectoryDataset = trajectories
         self.loss_fn = loss_fn
         self.device = device
         self.scheduler = scheduler
