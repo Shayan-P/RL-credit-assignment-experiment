@@ -53,6 +53,7 @@ class StateConvertor(Convertor):
         self.n = state_space.n
         self.state_mean = state_mean
         self.state_std = state_std
+        self.state_std = np.where(self.state_std == 0, 1e-7, self.state_std)  # prevent overflow
 
     def to_feature_space(self, value):
         assert (0 <= value < self.n)

@@ -94,12 +94,13 @@ class TrajectoryDataset:
         for _ in range(step_limit):
             action, info = policy.predict(observation)
             action = action.item()
-            observation, reward, terminated, truncated, info = env.step(action)
             observations.append(observation)
             actions.append(action)
+            observation, reward, terminated, truncated, info = env.step(action)
             rewards.append(reward)
-            dones.append(terminated or truncated)
-            if terminated or truncated:
+            done = terminated or truncated
+            dones.append(done)
+            if done:
                 break
         rewards = np.array(rewards)
         returns = discount_cumsum(rewards, self.gamma)

@@ -3,7 +3,9 @@ import gymnasium as gym
 
 
 class RandomWalkEnv(gym.Env):
-    def __init__(self):
+    def __init__(self, verbose=False):
+        self.verbose = verbose
+
         self.G = self.create_graph()
         n = self.G.number_of_nodes()
         # todo should we change this to one hot encoding?
@@ -40,9 +42,15 @@ class RandomWalkEnv(gym.Env):
         self.step_count = 0
         self.step_count_limit = 8  # todo set this based on the graph
         info = {}
+        if self.verbose:
+            print(f"reset. node: {self.cur_vertex}")
+
         return self.cur_vertex, info
 
     def step(self, action):
+        if self.verbose:
+            print(f"node: {self.cur_vertex} action: {action}")
+
         observations, rewards, termination, truncation, infos = self.cur_vertex, 0, False, False, {}
 
         self.step_count += 1
