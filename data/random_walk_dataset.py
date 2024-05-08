@@ -10,11 +10,11 @@ from data.convertor import StateConvertor, RewardConvertor, ActionConvertor
 
 
 class RandomWalkDataset(TrajectoryDataset):
-    def __init__(self, n_trajectories=10000, reward_scale=None):
+    def __init__(self, env: RandomWalkEnv, n_trajectories=10000, reward_scale=None):
         super().__init__(gamma=1)
 
-        self.env = RandomWalkEnv()
-        policy = RandomPolicy(self.env)
+        self.env = env
+        policy = RandomPolicy(env)
         self.trajectories = []
         self.trajectories += self.collect_trajectories(self.env, policy, n_trajectories=n_trajectories)
         # todo other policies maybe?

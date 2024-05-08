@@ -1,20 +1,24 @@
+import random
+
 import networkx as nx
 import gymnasium as gym
 
 
 class RandomWalkEnv(gym.Env):
-    def __init__(self, verbose=False):
+    def __init__(self, num_nodes, weight_max, reach_the_goal_reward, max_episode_length, verbose=False):
         self.verbose = verbose
 
-        self.G = self.create_graph()
+        self.G = self.create_graph(num_nodes, weight_max)
+
         n = self.G.number_of_nodes()
-        # todo should we change this to one hot encoding?
+
         self.action_space = gym.spaces.Discrete(n)
         self.observation_space = gym.spaces.Discrete(n)
 
-        self.starting_vertex = min(self.G.nodes())
-        self.ending_vertex = max(self.G.nodes())
-        self.reach_the_goal_reward = 10
+        self.starting_vertex = 0
+        self.ending_vertex = num_nodes-1
+        self.reach_the_goal_reward = reach_the_goal_reward
+        self.max_episode_length = max_episode_length
 
         ######################################
         self.cur_vertex = self.starting_vertex
@@ -24,23 +28,28 @@ class RandomWalkEnv(gym.Env):
         self.reset()
 
     @staticmethod
-    def create_graph():
-        # todo change this graph and randomize it later...
+    def create_graph(n, weight_max):
         G = nx.Graph()
-        G.add_edge(0, 1, weight=1)
-        G.add_edge(1, 2, weight=2)
-        G.add_edge(0, 3, weight=1)
-        G.add_edge(3, 2, weight=1)
-        G.add_edge(1, 3, weight=1)
-        G.add_edge(3, 5, weight=1)
-        G.add_edge(2, 4, weight=3)
+        # G.add_edge(0, 1, weight=1)
+        # G.add_edge(1, 2, weight=2)
+        # G.add_edge(0, 3, weight=1)
+        # G.add_edge(3, 2, weight=1)
+        # G.add_edge(1, 3, weight=1)
+        # G.add_edge(3, 5, weight=1)
+        # G.add_edge(2, 4, weight=3)
+        G.add_nodes_from(range(n))
+        for u in G.nodes():
+            for v in G.nodes():
+                if u != v:
+                    weight = random.randint(1, weight_max)
+                    G.add_edge(u, v, weight=weight)
         return G
 
     def reset(self, seed=None, **kwargs):
         self.cur_vertex = self.starting_vertex
         self.walk = [self.cur_vertex]
         self.step_count = 0
-        self.step_count_limit = 8  # todo set this based on the graph
+        self.step_count_limit = self.max_episode_length
         info = {}
         if self.verbose:
             print(f"reset. node: {self.cur_vertex}")

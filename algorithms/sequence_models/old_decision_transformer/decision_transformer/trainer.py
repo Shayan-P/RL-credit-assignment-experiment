@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 
-from algorithms.sequence_models.base_trainer import Trainer
+from algorithms.sequence_models.trainer import Trainer
 from data.trajectory import TrajectoryDataset, TrajectoryData
 
 SPLIT_SEQUENCE_LENGTH = 32
