@@ -10,7 +10,7 @@ from data.convertor import StateConvertor, RewardConvertor, ActionConvertor
 
 
 class RandomWalkDataset(TrajectoryDataset):
-    def __init__(self, n_trajectories=10000):
+    def __init__(self, n_trajectories=10000, reward_scale=None):
         super().__init__(gamma=1)
 
         self.env = RandomWalkEnv()
@@ -29,7 +29,11 @@ class RandomWalkDataset(TrajectoryDataset):
         all_state_features = np.array(all_state_features)
         self.state_mean = np.mean(all_state_features, axis=0)
         self.state_std = np.std(all_state_features, axis=0)
-        self.reward_scale = np.max(all_returns)  # todo or maybe a consider the interval (including min)
+
+        if reward_scale is None:
+            self.reward_scale = np.max(all_returns)  # todo or maybe a consider the interval (including min)
+        else:
+            self.reward_scale = reward_scale
 
         self._state_convertor = StateConvertor(self.env.observation_space, self.state_mean, self.state_std)
         self._reward_convertor = RewardConvertor(self.reward_scale)

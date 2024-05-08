@@ -2,8 +2,7 @@ import numpy as np
 import torch
 
 from algorithms.sequence_models.base_trainer import Trainer
-from algorithms.sequence_models.utils import discount_cumsum
-from data.trajectory import TrajectoryDataset
+from data.trajectory import TrajectoryDataset, TrajectoryData
 
 SPLIT_SEQUENCE_LENGTH = 32
 BATCH_SIZE_DEFAULT = 256
@@ -20,20 +19,19 @@ class DecisionTransformerTrainer(Trainer):
 
         s, a, r, d, rtg, timesteps, mask = [], [], [], [], [], [], []
         for i in range(batch_size):
-            traj = self.trajectories[batch_inds[i]]  # todo removed sorted_ind as it was not necessary here
-            si = np.random.randint(0, traj['rewards'].shape[0] - 1)
+            traj: TrajectoryData = self.trajectories.get_item(batch_inds[i])  # todo removed sorted_ind as it was not necessary here
+            si = np.random.randint(0, traj.rewards.shape[0] - 1)
 
             # get sequences from dataset
-            s.append(traj['observations'][si:si + max_len].reshape(1, -1, self.model.state_dim))
-            a.append(traj['actions'][si:si + max_len].reshape(1, -1, self.model.act_dim))
-            r.append(traj['rewards'][si:si + max_len].reshape(1, -1, 1))
-            if 'terminals' in traj:
-                d.append(traj['terminals'][si:si + max_len].reshape(1, -1))
-            else:
-                d.append(traj['dones'][si:si + max_len].reshape(1, -1))
+            s.append(traj.observations[si:si + max_len].reshape(1, -1, self.model.state_dim))
+            a.append(traj.actions[si:si + max_len].reshape(1, -1, self.model.act_dim))
+            r.append(traj.rewards[si:si + max_len].reshape(1, -1, 1))
+            d.append(traj.dones[si:si + max_len].reshape(1, -1))
             timesteps.append(np.arange(si, si + s[-1].shape[1]).reshape(1, -1))
             timesteps[-1][timesteps[-1] >= self.model.max_ep_len] = self.model.max_ep_len-1  # padding cutoff
-            rtg.append(discount_cumsum(traj['rewards'][si:], gamma=1.)[:s[-1].shape[1] + 1].reshape(1, -1, 1))
+            rtg.append(traj.returns[si:si + max_len].reshape(1, -1))
+
+                # discount_cumsum(traj.rewards[si:], gamma=1.)[:s[-1].shape[1] + 1].reshape(1, -1, 1))
             if rtg[-1].shape[1] <= s[-1].shape[1]:
                 rtg[-1] = np.concatenate([rtg[-1], np.zeros((1, 1, 1))], axis=1)
 
@@ -43,7 +41,7 @@ class DecisionTransformerTrainer(Trainer):
             a[-1] = np.concatenate([np.ones((1, max_len - tlen, self.model.act_dim)) * -10., a[-1]], axis=1)
             r[-1] = np.concatenate([np.zeros((1, max_len - tlen, 1)), r[-1]], axis=1)
             d[-1] = np.concatenate([np.ones((1, max_len - tlen)) * 2, d[-1]], axis=1)
-            rtg[-1] = np.concatenate([np.zeros((1, max_len - tlen, 1)), rtg[-1]], axis=1) / self.model.reward_scale
+            rtg[-1] = np.concatenate([np.zeros((1, max_len - tlen, 1)), rtg[-1]], axis=1)
             timesteps[-1] = np.concatenate([np.zeros((1, max_len - tlen)), timesteps[-1]], axis=1)
             mask.append(np.concatenate([np.zeros((1, max_len - tlen)), np.ones((1, tlen))], axis=1))
 
@@ -85,57 +83,52 @@ class DecisionTransformerTrainer(Trainer):
 
         return loss.detach().cpu().item()
 
-    def evaluate_episode(self, env, trajectory_dataset: TrajectoryDataset, target_return):
+    def evaluate_episode(
+            self,
+            env,
+            max_ep_len=1000,
+            target_return=None,
+    ):
         self.model.eval()
-        self.model.to(device=self.device)
+        self.model.to(device=self.device)  # todo remove this. we don't need it all the time
 
-
-
-        # todo I messed up here. We should do the normalization on the fly. Because in evaluation we are interacting with the environment and not the dataset
+        state, _ = env.reset()
+        state = self.trajectories.state_convertor.to_feature_space(state)
+        print(state)
         # we keep all the histories on the device
         # note that the latest action and reward will be "padding"
-        states = torch.from_numpy(state).reshape(1, state_dim).to(device=device, dtype=torch.float32)
-        actions = torch.zeros((0, act_dim), device=device, dtype=torch.float32)
-        rewards = torch.zeros(0, device=device, dtype=torch.float32)
-
-        ep_return = target_return
-        target_return = torch.tensor(ep_return, device=device, dtype=torch.float32).reshape(1, 1)
-        timesteps = torch.tensor(0, device=device, dtype=torch.long).reshape(1, 1)
-
-        sim_states = []
+        states = torch.from_numpy(state).reshape(1, self.model.state_dim).to(device=self.device, dtype=torch.float32)
+        actions = torch.zeros((0, self.model.act_dim), device=self.device, dtype=torch.float32)
+        rewards = torch.zeros(0, device=self.device, dtype=torch.float32)
+        target_return = torch.tensor(target_return, device=self.device, dtype=torch.float32)
 
         episode_return, episode_length = 0, 0
         for t in range(max_ep_len):
 
             # add padding
-            actions = torch.cat([actions, torch.zeros((1, act_dim), device=device)], dim=0)
-            rewards = torch.cat([rewards, torch.zeros(1, device=device)])
+            actions = torch.cat([actions, torch.zeros((1, self.model.act_dim), device=self.device)], dim=0)
+            rewards = torch.cat([rewards, torch.zeros(1, device=self.device)])
 
-            action = model.get_action(
-                (states.to(dtype=torch.float32) - state_mean) / state_std,
-                actions.to(dtype=torch.float32),
-                rewards.to(dtype=torch.float32),
-                target_return.to(dtype=torch.float32),
-                timesteps.to(dtype=torch.long),
+            # todo paused here
+            # states, actions, rewards, returns_to_go, timesteps
+            action = self.model.get_action(
+                states=states.to(dtype=torch.float32),
+                actions=actions.to(dtype=torch.float32),
+                rewards=rewards.to(dtype=torch.float32),
+                returns_to_go=target_return,
             )
             actions[-1] = action
+
             action = action.detach().cpu().numpy()
+            state, reward, termination, truncation, _ = env.step(self.trajectories.action_convertor.from_feature_space(action))
+            done = termination or truncation
 
-            state, reward, done, _ = env.step(action)
+            state = self.trajectories.state_convertor.to_feature_space(state)
+            reward = self.trajectories.reward_convertor.to_feature_space(reward)
 
-            cur_state = torch.from_numpy(state).to(device=device).reshape(1, state_dim)
+            cur_state = torch.from_numpy(state).to(device=self.device).reshape(1, self.model.state_dim)
             states = torch.cat([states, cur_state], dim=0)
             rewards[-1] = reward
-
-            if mode != 'delayed':
-                pred_return = target_return[0, -1] - (reward / scale)
-            else:
-                pred_return = target_return[0, -1]
-            target_return = torch.cat(
-                [target_return, pred_return.reshape(1, 1)], dim=1)
-            timesteps = torch.cat(
-                [timesteps,
-                 torch.ones((1, 1), device=device, dtype=torch.long) * (t + 1)], dim=1)
 
             episode_return += reward
             episode_length += 1
