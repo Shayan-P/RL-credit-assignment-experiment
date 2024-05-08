@@ -19,6 +19,7 @@ class TrainConfig:
     max_train_iters: int = 200
     num_updates_per_iter: int = 100
 
+    # todo I kinda wanna remove these GPT settings so that this class is general purpose for sequence models...
     # GPT config
     n_blocks: int = 3  # num of transformer blocks
     embed_dim: int = 128  # embedding (hidden) dim of transformer

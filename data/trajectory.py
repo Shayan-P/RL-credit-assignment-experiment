@@ -106,8 +106,14 @@ class TrajectoryDataset:
         returns = discount_cumsum(rewards, self.gamma)
         return observations, actions, rewards, returns, dones
 
-    def update_return_to_go(self, rtg, reward):
-        return (rtg - reward) / self.gamma
+    def collect_trajectories(self, env, policy, n_trajectories, step_limit=1000):
+        return [
+            self.collect_trajectory(env=env, policy=policy, step_limit=step_limit) for _ in range(n_trajectories)
+        ]
+
+    # todo currently we are currently assuming gamma=1 in the repo but we should use this function to reduce rtg if we need gamma<1
+    # def update_return_to_go(self, rtg, reward):
+    #     return (rtg - reward) / self.gamma
 
 
 class LimitedContextWrapper(Dataset):
