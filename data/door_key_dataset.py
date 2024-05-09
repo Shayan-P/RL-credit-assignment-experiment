@@ -32,7 +32,7 @@ class DoorKeyDataset(TrajectoryDataset):
         all_returns = []
         for observations, actions, rewards, returns, dones in self.trajectories:
             all_state_features.extend(list(observations))
-            all_returns.append(returns[-1])
+            all_returns.append(returns[0])
         all_returns = np.array(all_returns)
         all_state_features = np.array(all_state_features)
         self.state_mean = np.mean(all_state_features, axis=0)
