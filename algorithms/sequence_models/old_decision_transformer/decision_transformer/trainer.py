@@ -1,14 +1,14 @@
 import numpy as np
 import torch
 
-from algorithms.sequence_models.trainer import Trainer
-from data.trajectory import TrajectoryDataset, TrajectoryData
+from algorithms.sequence_models.decision_transformer.trainer import TrainerDT
+from data.trajectory import TrajectoryData
 
 SPLIT_SEQUENCE_LENGTH = 32
 BATCH_SIZE_DEFAULT = 256
 
 
-class DecisionTransformerTrainer(Trainer):
+class DecisionTransformerTrainer(TrainerDT):
     def get_batch(self, batch_size=BATCH_SIZE_DEFAULT, max_len=SPLIT_SEQUENCE_LENGTH):
         batch_inds = np.random.choice(
             np.arange(len(self.trajectories)),
