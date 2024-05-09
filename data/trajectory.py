@@ -2,6 +2,7 @@ import random
 import numpy as np
 import torch
 
+from tqdm.notebook import tqdm
 from abc import abstractmethod
 from dataclasses import dataclass
 from utils.utils import discount_cumsum
@@ -107,10 +108,11 @@ class TrajectoryDataset:
         return observations, actions, rewards, returns, dones
 
     def collect_trajectories(self, env, policy, n_trajectories, step_limit=1000):
-        return [
-            self.collect_trajectory(env=env, policy=policy, step_limit=step_limit) for _ in range(n_trajectories)
-        ]
-
+        res = []
+        for i in tqdm(range(n_trajectories), "collecting trajectories"):
+            traj = self.collect_trajectory(env=env, policy=policy, step_limit=step_limit)
+            res.append(traj)
+        return res
     # todo currently we are currently assuming gamma=1 in the repo but we should use this function to reduce rtg if we need gamma<1
     # def update_return_to_go(self, rtg, reward):
     #     return (rtg - reward) / self.gamma

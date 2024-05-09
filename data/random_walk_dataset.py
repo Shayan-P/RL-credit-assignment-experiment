@@ -6,7 +6,7 @@ from envs.random_walk import RandomWalkEnv
 from algorithms.random_policy import RandomPolicy
 from data.trajectory import TrajectoryDataset, TrajectoryData
 from utils.utils import discount_cumsum
-from data.convertor import StateConvertor, RewardConvertor, ActionConvertor
+from data.convertor import DiscreteStateConvertor, RewardConvertor, DiscreteActionConvertor
 
 
 class RandomWalkDataset(TrajectoryDataset):
@@ -35,9 +35,9 @@ class RandomWalkDataset(TrajectoryDataset):
         else:
             self.reward_scale = reward_scale
 
-        self._state_convertor = StateConvertor(self.env.observation_space, self.state_mean, self.state_std)
+        self._state_convertor = DiscreteStateConvertor(self.env.observation_space, self.state_mean, self.state_std)
         self._reward_convertor = RewardConvertor(self.reward_scale)
-        self._action_convertor = ActionConvertor(self.env.action_space)
+        self._action_convertor = DiscreteActionConvertor(self.env.action_space)
 
         print("Dataset Info:")
         print('episode_max_length:', self.get_max_episode_length())

@@ -31,7 +31,7 @@ class RewardConvertor(Convertor):
         return value / self.scale
 
 
-class ActionConvertor(Convertor):
+class DiscreteActionConvertor(Convertor):
     def __init__(self, action_space):
         super().__init__()
         self.n = action_space.n
@@ -46,8 +46,7 @@ class ActionConvertor(Convertor):
         return np.argmax(value, axis=-1)
 
 
-# todo this is only for discrete spaces
-class StateConvertor(Convertor):
+class DiscreteStateConvertor(Convertor):
     def __init__(self, state_space, state_mean, state_std):
         super().__init__()
         self.n = state_space.n

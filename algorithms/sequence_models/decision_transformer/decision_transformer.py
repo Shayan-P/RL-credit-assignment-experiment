@@ -155,7 +155,6 @@ class DecisionTransformer(nn.Module):
         return_preds = self.predict_rtg(h[:, 2])  # predict next rtg given r, s, a
         state_preds = self.predict_state(h[:, 2])  # predict next state given r, s, a
         action_preds = self.predict_action(h[:, 1])  # predict action given r, s
-
         return state_preds, action_preds, return_preds
 
 
