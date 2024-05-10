@@ -15,13 +15,15 @@ from data.trajectory import TrajectoryDataset
 
 
 class Logger:
-    def __init__(self, name):
+    def __init__(self, name, check_point_interval=50):
         self.name = name
         self.start_time = datetime.datetime.now().replace(microsecond=0)
         self.best_score = -np.inf
         self.iters = 0
         self.num_updates_per_iter = 0
         self.previous_csv_extra_keys = None
+
+        self.check_point_interval = check_point_interval
 
         self.log_dir = os.path.join(LOG_DIR, "dt_runs")
 
@@ -107,15 +109,17 @@ class Logger:
         log_data = [time_elapsed, total_updates, loss,
                     eval_avg_reward, self.best_score] + [kwargs[key] for key in self.previous_csv_extra_keys]
         self.csv_writer.writerow(log_data)
+
+        if self.iters % self.check_point_interval == 0:
+            print("saving current model at: " + self.save_model_path)
+            torch.save(model.state_dict(), self.save_model_path)
+
         if eval_avg_reward >= self.best_score:
             print('achieved average reward: ', eval_avg_reward)
             print("saving max score model at: " + self.save_best_model_path)
 
             torch.save(model.state_dict(), self.save_best_model_path)
             self.best_score = eval_avg_reward
-
-        print("saving current model at: " + self.save_model_path)
-        torch.save(model.state_dict(), self.save_model_path)
 
         self.pbar.set_description(' '.join([
             f'Loss={loss}',

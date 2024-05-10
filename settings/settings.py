@@ -5,3 +5,5 @@ LOG_DIR = os.path.join(PROJECT_DIR, 'logs')
 
 if not os.path.exists(LOG_DIR):
     os.makedirs(LOG_DIR)
+
+DATASET_DIR = os.path.join(PROJECT_DIR, 'datasets')

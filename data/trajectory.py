@@ -1,6 +1,9 @@
+import os
 import random
 import numpy as np
 import torch
+import pickle
+
 
 from tqdm.notebook import tqdm
 from abc import abstractmethod
@@ -8,6 +11,7 @@ from dataclasses import dataclass
 from utils.utils import discount_cumsum
 from data.convertor import Convertor
 from torch.utils.data import Dataset
+from settings import DATASET_DIR
 
 
 @dataclass
@@ -32,6 +36,25 @@ class TrajectoryDataset:
 
         self._max_episode_length = 0
         self.gamma = gamma
+
+    @classmethod
+    def get_load_save_filename(cls, name):
+        path = os.path.join(DATASET_DIR, cls.__name__)
+        if not os.path.exists(path):
+            os.makedirs(path)
+        filename = os.path.join(path, f'{name}.pkl')
+        return filename
+
+    def save(self, name):
+        filename = self.get_load_save_filename(name)
+        with open(filename, 'wb') as f:
+            pickle.dump(self, f)
+
+    @classmethod
+    def load(cls, name):
+        filename = cls.get_load_save_filename(name)
+        with open(filename, 'rb') as f:
+            return pickle.load(f)
 
     @abstractmethod
     def dataset_size(self) -> int:

@@ -1,11 +1,9 @@
 import torch
 import numpy as np
 
-from utils.utils import get_one_hot
-from envs.door_key import DoorKeyEnv, DoorKeyEnvSmall, MiniGridEnv
+from envs.door_key import MiniGridEnv
 from algorithms.random_policy import RandomPolicy
 from data.trajectory import TrajectoryDataset, TrajectoryData
-from utils.utils import discount_cumsum
 from data.convertor import DiscreteStateConvertor, RewardConvertor, DiscreteActionConvertor, \
     Convertor
 from minigrid.wrappers import FlatObsWrapper, ImgObsWrapper

@@ -5,3 +5,4 @@ experimental_notebooks
 **/__pycache__
 **/**/__pycache__
 **/logs/
+datasets/**
