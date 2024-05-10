@@ -34,6 +34,8 @@ class RandomPolicy:
             rest = tuple(obs.shape[:-l])
             return torch.tensor([self.ac_space.sample()
                                  for _ in range(np.prod(rest))]).reshape(rest + self.ac_space.shape)
+        # batch = obs.shape[0] if isinstance(obs, torch.Tensor) else 1
+        # return torch.tensor([self.ac_space.sample() for _ in range(batch)]), {}
 
 # def sweep(engine_class, agents, probs, labels, n_runs=2000, max_steps=500):
 #     logs = dict()
