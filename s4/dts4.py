@@ -12,7 +12,7 @@ class DecisionS4(nn.Module):
         self.h_dim = h_dim
 
         ### transformer blocks
-        self.s4 = S4Block(d_model=h_dim, dropout=drop_p)
+        self.s4 = S4Block(d_model=h_dim, dropout=drop_p, transposed=False)
 
         ### projection heads (project to embedding)
         self.embed_ln = nn.LayerNorm(h_dim)
@@ -21,11 +21,11 @@ class DecisionS4(nn.Module):
         self.embed_state = torch.nn.Linear(state_dim, h_dim)
         
         # # discrete actions
-        self.embed_action = torch.nn.Embedding(act_dim, h_dim)
+        # self.embed_action = torch.nn.Embedding(act_dim, h_dim)
         use_action_tanh = False # False for discrete actions
 
         # continuous actions
-        # self.embed_action = torch.nn.Linear(act_dim, h_dim)
+        self.embed_action = torch.nn.Linear(act_dim, h_dim)
         # use_action_tanh = True # True for continuous actions
         
         ### prediction heads
@@ -42,6 +42,11 @@ class DecisionS4(nn.Module):
 
         time_embeddings = self.embed_timestep(timesteps)
 
+        # print(time_embeddings.shape)
+        # print(self.embed_state(states).shape)
+        # print(self.embed_action(actions).shape)
+        # print(self.embed_rtg(returns_to_go).shape)
+
         # time embeddings are treated similar to positional embeddings
         state_embeddings = self.embed_state(states) + time_embeddings
         action_embeddings = self.embed_action(actions) + time_embeddings
@@ -56,7 +61,8 @@ class DecisionS4(nn.Module):
         h = self.embed_ln(h)
         
         # transformer and prediction
-        h = self.s4(h)
+        # print(h.shape)
+        h, _ = self.s4(h)
 
         # get h reshaped such that its size = (B x 3 x T x h_dim) and
         # h[:, 0, t] is conditioned on r_0, s_0, a_0 ... r_t

@@ -20,7 +20,7 @@ class RandomPolicy:
         self.ac_space = env.action_space
 
     def predict(self, obs):
-        batch = obs.shape[0]
+        batch = obs.shape[0] if isinstance(obs, torch.Tensor) else 1
         return torch.tensor([self.ac_space.sample() for _ in range(batch)]), {}
 
 # def sweep(engine_class, agents, probs, labels, n_runs=2000, max_steps=500):
