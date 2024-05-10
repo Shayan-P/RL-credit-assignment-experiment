@@ -4,17 +4,24 @@ import torch
 from gymnasium.spaces import Space
 from stable_baselines3.common.policies import BasePolicy
 
+# class RandomPolicy(BasePolicy):
+#     def __init__(self, env: gym.Env):
+#         super(BasePolicy, self).__init__(action_space=env.action_space, observation_space=env.observation_space)
+#         self.ob_space = env.observation_space
+#         self.ac_space = env.action_space
 
-class RandomPolicy(BasePolicy):
+#     def _predict(self, obs, deterministic=False):
+#         batch = obs.shape[0]
+#         return torch.tensor([self.ac_space.sample() for _ in range(batch)])
+
+class RandomPolicy:
     def __init__(self, env: gym.Env):
-        super(BasePolicy, self).__init__(action_space=env.action_space, observation_space=env.observation_space)
         self.ob_space = env.observation_space
         self.ac_space = env.action_space
 
-    def _predict(self, obs, deterministic=False):
+    def predict(self, obs):
         batch = obs.shape[0]
-        return torch.tensor([self.ac_space.sample() for _ in range(batch)])
-
+        return torch.tensor([self.ac_space.sample() for _ in range(batch)]), {}
 
 # def sweep(engine_class, agents, probs, labels, n_runs=2000, max_steps=500):
 #     logs = dict()

@@ -4,8 +4,7 @@ from bsuite.utils import gym_wrapper
 from bsuite.utils.gym_wrapper import GymFromDMEnv
 
 
-def get_umbrella_length_env() -> gym.Env:
+def get_umbrella_length_env(chain_length) -> gym.Env:
     # change later. what are other versions of umbrella length
     # + can we visualize it?
-    bs_env = bsuite.load_from_id('umbrella_length/0')
-    return gym_wrapper.GymFromDMEnv(bs_env)
+    return gym.make("bsuite/umbrella_length-v0", chain_length=chain_length, n_distractor=20)

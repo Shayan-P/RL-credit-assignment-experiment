@@ -63,3 +63,17 @@ class DiscreteStateConvertor(Convertor):
             value = value.cpu().numpy()
         value = value * self.state_std + self.state_mean
         return np.argmax(value, axis=-1)
+    
+class ReshapeStateConvertor(Convertor):
+    def __init__(self, state_space, feature_shape):
+        super().__init__()
+        self.real_shape = state_space.shape
+        self.feature_shape = feature_shape
+
+    def to_feature_space(self, value):
+        return value.reshape(self.feature_shape)
+
+    def from_feature_space(self, value):
+        if isinstance(value, torch.Tensor):
+            value = value.cpu().numpy()
+        return value.reshape(self.real_shape)
