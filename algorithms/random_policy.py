@@ -1,4 +1,5 @@
 import gym
+import numpy as np
 import torch
 
 from gymnasium.spaces import Space
@@ -20,8 +21,19 @@ class RandomPolicy:
         self.ac_space = env.action_space
 
     def predict(self, obs):
-        batch = obs.shape[0]
-        return torch.tensor([self.ac_space.sample() for _ in range(batch)]), {}
+        if isinstance(obs, np.ndarray):
+            obs = torch.from_numpy(obs)
+        if not isinstance(obs, torch.Tensor): # should be primitives right?
+            obs = torch.tensor(obs)
+        if len(obs.shape) == len(self.ob_space.shape): # no vectorization:
+            return self.ac_space.sample(), {}
+        else:
+            l = len(self.ob_space.shape)
+            assert len(obs.shape) == l+1
+            assert obs.shape[-l:] == self.ob_space.shape
+            rest = tuple(obs.shape[:-l])
+            return torch.tensor([self.ac_space.sample()
+                                 for _ in range(np.prod(rest))]).reshape(rest + self.ac_space.shape)
 
 # def sweep(engine_class, agents, probs, labels, n_runs=2000, max_steps=500):
 #     logs = dict()
