@@ -4,7 +4,7 @@ import datetime
 import matplotlib.pyplot as plt
 import torch
 import pandas as pd
-from datasets import tqdm
+from tqdm.notebook import tqdm
 
 from algorithms.evaluate_policy import evaluate_policy
 from algorithms.sequence_models.trainer import TrainCallback
