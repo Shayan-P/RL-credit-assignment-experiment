@@ -256,6 +256,7 @@ class LimitedContextWrapperSortedLength(Dataset):
             # padding_len = self.context_len - traj_len
             batch_length = self.batch_sequence_length[idx]
             padding_len = batch_length - traj_len
+            assert (padding_len >= 0)
 
             # padding with zeros
             states = torch.from_numpy(traj.observations)

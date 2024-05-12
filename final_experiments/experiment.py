@@ -39,7 +39,8 @@ class Experiment:
                  dataset_name,
                  config: TrainConfig,
                  device,
-                 eval_policies_and_names: List[Tuple[BasePolicy, str]]
+                 eval_policies_and_names: List[Tuple[BasePolicy, str]],
+                 final_eval_policies: List[BasePolicy] = []
                  ):
         """
             should we save dataset anytime we are running the experiment?
@@ -111,6 +112,9 @@ class Experiment:
             verbose=True
         )
         self.trainer.register_callback(self.custom_callback)
+
+        self.eval_policies_and_names = eval_policies_and_names
+        self.final_eval_policies = final_eval_policies
 
     def plot_loss(self, report):
         return report.sort_values(by=['train/iteration', 'train/update_idx']).reset_index()['train/loss'].plot()
