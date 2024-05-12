@@ -61,7 +61,12 @@ class TrajectoryDataset:
     @classmethod
     def load(cls, name):
         filename = cls.get_load_save_filename(name)
-        cls.load_from_path(filename)
+        return cls.load_from_path(filename)
+
+    @classmethod
+    def exists(cls, name):
+        filename = cls.get_load_save_filename(name)
+        return os.path.exists(filename)
 
     @abstractmethod
     def dataset_size(self) -> int:
