@@ -94,7 +94,7 @@ class AutomatedComparisonExperiment:
         plt.figure()
         print("distribution of rewards in the dataset")
         # rewards:
-        plt.hist([traj.returns[0] for traj in self.traj_dataset], bins=50)
+        plt.hist([self.traj_dataset.reward_convertor.from_feature_space(traj.returns[0]) for traj in self.traj_dataset], bins=50)
         experiment.save_fig("distribution_of_returns_in_trajectories")
 
         plt.figure()
@@ -107,7 +107,7 @@ class AutomatedComparisonExperiment:
 
         rtg_results = [evaluate_policy(policy, self.env, num_eval_ep=self.config.num_eval_ep)['eval/avg_reward']
                        for policy in experiment.final_eval_policies]
-        max_in_dataset = max([traj.returns[0] for traj in self.traj_dataset])
+        max_in_dataset = max([self.traj_dataset.reward_convertor.from_feature_space(traj.returns[0]) for traj in self.traj_dataset])
 
         plt.figure()
         plt.plot(self.rtgs_final_test, rtg_results)
