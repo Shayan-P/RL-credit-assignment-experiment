@@ -4,6 +4,7 @@ import torch
 from algorithms.sequence_models.trainer import Trainer
 
 
+# todo this is only for dt. shouldn't use it as a general purpose thing
 class TrainerDT(Trainer):
     def train_iteration(self) -> pd.DataFrame:
         data_iter = iter(self.traj_data_loader)
@@ -22,8 +23,6 @@ class TrainerDT(Trainer):
             df.append(res)
 
         df = pd.DataFrame(df)
-        for callback in self.callbacks:
-            callback(df=df)
         return df
 
     def train_step(self, timesteps, states, actions, returns_to_go, traj_mask):

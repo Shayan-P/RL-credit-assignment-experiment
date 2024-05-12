@@ -45,16 +45,23 @@ class TrajectoryDataset:
         filename = os.path.join(path, f'{name}.pkl')
         return filename
 
-    def save(self, name):
-        filename = self.get_load_save_filename(name)
+    def save_to_path(self, filename):
         with open(filename, 'wb') as f:
             pickle.dump(self, f)
 
     @classmethod
-    def load(cls, name):
-        filename = cls.get_load_save_filename(name)
+    def load_from_path(cls, filename):
         with open(filename, 'rb') as f:
             return pickle.load(f)
+
+    def save(self, name):
+        filename = self.get_load_save_filename(name)
+        self.save_to_path(filename)
+
+    @classmethod
+    def load(cls, name):
+        filename = cls.get_load_save_filename(name)
+        cls.load_from_path(filename)
 
     @abstractmethod
     def dataset_size(self) -> int:

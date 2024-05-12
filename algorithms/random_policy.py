@@ -1,9 +1,8 @@
+from abc import abstractmethod
+
 import gym
 import numpy as np
 import torch
-
-from gymnasium.spaces import Space
-from stable_baselines3.common.policies import BasePolicy
 
 # class RandomPolicy(BasePolicy):
 #     def __init__(self, env: gym.Env):
@@ -15,10 +14,29 @@ from stable_baselines3.common.policies import BasePolicy
 #         batch = obs.shape[0]
 #         return torch.tensor([self.ac_space.sample() for _ in range(batch)])
 
-class RandomPolicy:
+class BasePolicy:
+    @abstractmethod
+    def predict(self, obs):
+        pass
+
+    def reset(self):
+        """
+        should be called at the start of each episode
+        """
+        pass
+
+    def add_to_history(self, obs, action, reward, done):
+        """
+            this is necessary because some policies need to see the reward of their previous actions
+        """
+        pass
+
+
+class RandomPolicy(BasePolicy):
     def __init__(self, env: gym.Env):
         self.ob_space = env.observation_space
         self.ac_space = env.action_space
+
 
     def predict(self, obs):
         if isinstance(obs, np.ndarray):
@@ -34,6 +52,10 @@ class RandomPolicy:
             rest = tuple(obs.shape[:-l])
             return torch.tensor([self.ac_space.sample()
                                  for _ in range(np.prod(rest))]).reshape(rest + self.ac_space.shape)
+
+    def reset(self):
+        pass
+
         # batch = obs.shape[0] if isinstance(obs, torch.Tensor) else 1
         # return torch.tensor([self.ac_space.sample() for _ in range(batch)]), {}
 

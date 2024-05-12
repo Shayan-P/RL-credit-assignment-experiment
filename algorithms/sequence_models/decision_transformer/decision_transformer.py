@@ -16,6 +16,8 @@ import torch.nn.functional as F
 import torch
 import math
 
+from algorithms.sequence_models.decision_sequence_policy import DecisionSequenceModel
+
 
 class MaskedCausalAttention(nn.Module):
     def __init__(self, h_dim, max_T, n_heads, drop_p):
@@ -89,10 +91,11 @@ class Block(nn.Module):
         return x
 
 
-class DecisionTransformer(nn.Module):
+# todo do the same thing for s4
+class DecisionTransformer(DecisionSequenceModel):
     def __init__(self, state_dim, act_dim, n_blocks, h_dim, context_len,
                  n_heads, drop_p, max_timestep=4096):
-        super().__init__()
+        super().__init__(state_dim=state_dim, act_dim=act_dim)
 
         self.state_dim = state_dim
         self.act_dim = act_dim

@@ -44,7 +44,7 @@ class Logger:
         self.num_updates_per_iter = update_per_iter
         self.previous_csv_extra_keys = None
 
-        prefix = "dt_"
+        prefix = "dt_"  # todo change this prefix to general model name
         start_time_str = self.start_time.strftime("%y-%m-%d-%H-%M-%S")
         save_model_name = prefix + self.name + "_model_" + start_time_str + ".pt"
         self.save_model_path = os.path.join(self.log_dir, save_model_name)
