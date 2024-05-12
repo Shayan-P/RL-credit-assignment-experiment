@@ -12,7 +12,9 @@ from experiment import Experiment
 
 
 class AutomatedComparisonExperiment:
-    def __init__(self, env, traj_dataset, config: TrainConfig, device, rtgs_for_train_eval, rtgs_final_test, env_name, experiment_name):
+    def __init__(self, env, traj_dataset, config: TrainConfig, device, rtgs_for_train_eval, rtgs_final_test, env_name,
+                 experiment_name,
+                 DT_Class=DecisionTransformer, S4_Class=DecisionS4):
         rtgs_final_test = list(sorted(rtgs_final_test))
         rtgs_for_train_eval = list(sorted(rtgs_for_train_eval))
 
@@ -25,7 +27,7 @@ class AutomatedComparisonExperiment:
         self.env_name = env_name
         self.experiment_name = experiment_name
 
-        self.dt_model = DecisionTransformer(
+        self.dt_model = DT_Class(
             state_dim=traj_dataset.state_dim(),
             act_dim=traj_dataset.action_dim(),
             n_blocks=config.n_blocks,
@@ -35,17 +37,17 @@ class AutomatedComparisonExperiment:
             drop_p=config.dropout_p,
         ).to(device)
 
-        make_dt_policy = partial(DTPolicy, model=self.dt_model, traj_dataset=traj_dataset, device=device,
-                                 max_test_ep_len=config.max_eval_ep_len, context_length=config.context_len)
+        self.make_dt_policy = partial(DTPolicy, model=self.dt_model, traj_dataset=traj_dataset, device=device,
+                                      max_test_ep_len=config.max_eval_ep_len, context_length=config.context_len)
 
-        self.s4_model = DecisionS4(
+        self.s4_model = S4_Class(
             state_dim=traj_dataset.state_dim(),
             act_dim=traj_dataset.action_dim(),
             h_dim=config.embed_dim,
             drop_p=config.dropout_p,
         ).to(device)
 
-        make_s4_policy = partial(DTPolicy, model=self.s4_model, traj_dataset=traj_dataset, device=device,
+        self.make_s4_policy = partial(DTPolicy, model=self.s4_model, traj_dataset=traj_dataset, device=device,
                                  max_test_ep_len=config.max_eval_ep_len, context_length=config.context_len)
 
         self.s4_experiment = Experiment(
@@ -59,11 +61,11 @@ class AutomatedComparisonExperiment:
             config=config,
             device=device,
             eval_policies_and_names=[
-                (make_s4_policy(rtg=rtg), f'S4:rtg={rtg:.2f}')
+                (self.make_s4_policy(rtg=rtg), f'S4:rtg={rtg:.2f}')
                 for rtg in rtgs_for_train_eval
             ],
             final_eval_policies=[
-                make_s4_policy(rtg=rtg)
+                self.make_s4_policy(rtg=rtg)
                 for rtg in rtgs_final_test
             ]
         )
@@ -79,11 +81,11 @@ class AutomatedComparisonExperiment:
             config=config,
             device=device,
             eval_policies_and_names=[
-                (make_dt_policy(rtg=rtg), f'DT:rtg={rtg:.2f}')
+                (self.make_dt_policy(rtg=rtg), f'DT:rtg={rtg:.2f}')
                 for rtg in rtgs_for_train_eval
             ],
             final_eval_policies=[
-                make_dt_policy(rtg=rtg)
+                self.make_dt_policy(rtg=rtg)
                 for rtg in rtgs_final_test
             ]
         )
@@ -102,7 +104,6 @@ class AutomatedComparisonExperiment:
         plt.figure()
         experiment.plot_loss(report)
         experiment.save_fig(f"loss_after={experiment.custom_callback.iters}")
-
 
         rtg_results = [evaluate_policy(policy, self.env, num_eval_ep=self.config.num_eval_ep)['eval/avg_reward']
                        for policy in experiment.final_eval_policies]

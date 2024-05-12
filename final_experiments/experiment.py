@@ -92,7 +92,7 @@ class Experiment:
         loss_fn = nn.MSELoss(reduction='mean')
 
         # todo later customize the loss function
-        print("number of parameters", sum(np.prod(param.shape) for param in model.parameters()))
+        print(self.model_name, ':', "number of parameters", sum(np.prod(param.shape) for param in model.parameters()))
         ###############################################################
         # todo later change LimitedContextWrapper to something more general for S4 and DT
         # todo later we can change this trainer
