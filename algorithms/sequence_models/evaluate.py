@@ -1,9 +1,11 @@
 import torch
+
+from algorithms.sequence_models.decision_sequence_policy import DecisionSequenceModel
 from data.trajectory import TrajectoryDataset
 
 
 # trajectory is passed in order to be able to convert state to feature space and normalize the rewards
-def evaluate_on_env(model, traj_dataset: TrajectoryDataset, device, context_len, env, rtg_target,
+def evaluate_on_env(model: DecisionSequenceModel, traj_dataset: TrajectoryDataset, device, context_len, env, rtg_target,
                     num_eval_ep=10, max_test_ep_len=1000, render=False):
     eval_batch_size = 1  # required for forward pass
 
@@ -11,8 +13,8 @@ def evaluate_on_env(model, traj_dataset: TrajectoryDataset, device, context_len,
     total_reward = 0
     total_timesteps = 0
 
-    state_dim = traj_dataset.state_dim()
-    act_dim = traj_dataset.action_dim()
+    state_dim = model.state_dim
+    act_dim = model.act_dim
 
     # same as timesteps used for training the transformer
     # also, crashes if device is passed to arange()

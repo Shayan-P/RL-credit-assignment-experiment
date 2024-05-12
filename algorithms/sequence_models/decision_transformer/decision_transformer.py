@@ -97,8 +97,6 @@ class DecisionTransformer(DecisionSequenceModel):
                  n_heads, drop_p, max_timestep=4096):
         super().__init__(state_dim=state_dim, act_dim=act_dim)
 
-        self.state_dim = state_dim
-        self.act_dim = act_dim
         self.h_dim = h_dim
 
         ### transformer blocks

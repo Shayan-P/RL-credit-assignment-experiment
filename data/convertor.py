@@ -19,6 +19,17 @@ class Convertor:
         pass
 
 
+class IdentityConvertor(Convertor):
+    def __init__(self):
+        super().__init__()
+
+    def from_feature_space(self, value):
+        return value
+
+    def to_feature_space(self, value):
+        return value
+
+
 class RewardConvertor(Convertor):
     def __init__(self, scale):
         super().__init__()

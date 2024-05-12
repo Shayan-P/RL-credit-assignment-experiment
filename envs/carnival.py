@@ -2,8 +2,8 @@ import stable_baselines3  # registers atari games
 import gymnasium as gym
 
 
-def get_carnival_env():
-    return gym.make('Carnival-v4')
+def get_carnival_env(**kwargs):
+    return gym.make('Carnival-v4', **kwargs)
 
 # ['Carnival-v0',
 #  'CarnivalDeterministic-v0',
