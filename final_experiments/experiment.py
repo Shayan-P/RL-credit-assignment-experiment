@@ -56,6 +56,7 @@ class Experiment:
         self.log_dir = cd_mkdir(self.log_dir, experiment_name)
         self.experiment_name = f'{experiment_name}_{dataset_name}'
         self.full_experiment_name = f'{env_name}_{model_name}_{self.experiment_name}'
+        self.fig_dir = cd_mkdir(self.log_dir, f'{self.experiment_name}_figures')
 
         self.config_file_path = os.path.join(self.log_dir, f'{self.experiment_name}_config.json')
         self.dataset_path = os.path.join(self.log_dir, f'{self.experiment_name}_dataset.pkl')
@@ -122,6 +123,7 @@ class Experiment:
 
     def save_fig(self, name):
         plt.savefig(os.path.join(FIGURES_DIR, f'{self.full_experiment_name}_{name}.png'))
+        plt.savefig(os.path.join(self.fig_dir, f'{self.full_experiment_name}_{name}.png'))
 
     def train_for(self, epochs=None):
         report = self.trainer.train(epochs=epochs)
