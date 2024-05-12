@@ -228,7 +228,7 @@ class LimitedContextWrapperSortedLength(Dataset):
         self.trajectory_dataset.sort(key=lambda traj: len(traj))
         self.batch_sequence_length = []
         for i, traj in enumerate(self.trajectory_dataset):
-            l = i // batch_size
+            l = (i // batch_size) * batch_size
             r = l + batch_size-1
             r = min(r, len(self.trajectory_dataset)-1)
             self.batch_sequence_length.append(len(self.trajectory_dataset[r]))
