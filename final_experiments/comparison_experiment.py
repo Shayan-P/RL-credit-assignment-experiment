@@ -98,7 +98,7 @@ class AutomatedComparisonExperiment:
         experiment.save_fig("distribution_of_returns_in_trajectories")
 
         plt.figure()
-        report = self.dt_experiment.train_for(epochs)
+        report = experiment.train_for(epochs)
         experiment.save_fig(f"_rtg_following_learning_process={experiment.custom_callback.iters}")
 
         plt.figure()

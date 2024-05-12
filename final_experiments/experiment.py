@@ -114,7 +114,6 @@ class Experiment:
             verbose=True
         )
         self.trainer.register_callback(self.custom_callback)
-
         self.eval_policies_and_names = eval_policies_and_names
         self.final_eval_policies = final_eval_policies
 
