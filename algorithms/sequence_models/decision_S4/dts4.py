@@ -6,7 +6,7 @@ from algorithms.sequence_models.decision_sequence_policy import DecisionSequence
 
 
 class DecisionS4(DecisionSequenceModel):
-    def __init__(self, state_dim, act_dim, h_dim, context_len, drop_p, max_timestep=4096):
+    def __init__(self, state_dim, act_dim, h_dim, drop_p, max_timestep=4096):
         super().__init__(state_dim=state_dim, act_dim=act_dim)
 
         self.h_dim = h_dim

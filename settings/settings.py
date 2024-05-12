@@ -13,3 +13,4 @@ def cd_mkdir(dir, child, error_if_not_exist=False):
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LOG_DIR = cd_mkdir(PROJECT_DIR, "logs")
 DATASET_DIR = cd_mkdir(PROJECT_DIR, "datasets")
+FIGURES_DIR = cd_mkdir(PROJECT_DIR, "figures")

@@ -7,7 +7,9 @@ from typing import List, Tuple
 import numpy as np
 import datetime
 import gymnasium as gym
+import pandas as pd
 import torch
+from matplotlib import pyplot as plt
 from torch import nn
 
 from algorithms.random_policy import BasePolicy
@@ -17,7 +19,7 @@ from algorithms.sequence_models.decision_transformer.trainer import TrainerDT
 from algorithms.sequence_models.trainer import TrainCallback
 from data.trajectory import TrajectoryDataset, LimitedContextWrapper
 from final_experiments.callbacks import LogSaveModelEvaluateCallback
-from settings import LOG_DIR, cd_mkdir
+from settings import LOG_DIR, cd_mkdir, FIGURES_DIR
 
 
 class Experiment:
@@ -43,6 +45,10 @@ class Experiment:
             should we save dataset anytime we are running the experiment?
         """
 
+        self.model_name = model_name
+        self.env_name = env_name
+        self.experiment_name = experiment_name
+
         self.log_dir = LOG_DIR
         self.log_dir = cd_mkdir(self.log_dir, env_name)
         self.log_dir = cd_mkdir(self.log_dir, model_name)
@@ -56,6 +62,7 @@ class Experiment:
                                                    f'{self.experiment_name}_model')  # this is passed to ModelLogger
         self.log_save_path_prefix = os.path.join(self.log_dir,
                                                  f'{self.experiment_name}_log')  # this is passed to ModelLogger
+        self.concat_report = pd.DataFrame()
 
         # save config
         with open(self.config_file_path, 'w') as f:
@@ -87,17 +94,11 @@ class Experiment:
         print("number of parameters", sum(np.prod(param.shape) for param in model.parameters()))
         ###############################################################
         # todo later change LimitedContextWrapper to something more general for S4 and DT
-        self.trainer = TrainerDT(name=experiment_name, model=model,
-                                 optimizer=optimizer, loss_fn=loss_fn,
-                                 dataset=LimitedContextWrapper(traj_dataset, context_len=config.context_len),
-                                 device=device, config=self.config, scheduler=scheduler)
-
-        loss_fn = nn.MSELoss(reduction='mean')
-
         # todo later we can change this trainer
-        self.trainer = TrainerDT(name=experiment_name, model=model,
+        self.dataset = LimitedContextWrapper(traj_dataset, context_len=config.context_len)
+        self.trainer = TrainerDT(name=experiment_name, model=self.model,
                                  optimizer=optimizer, loss_fn=loss_fn,
-                                 dataset=LimitedContextWrapper(traj_dataset, context_len=config.context_len),
+                                 dataset=self.dataset,
                                  device=device, config=config, scheduler=scheduler)
 
         self.custom_callback = LogSaveModelEvaluateCallback(
@@ -114,6 +115,10 @@ class Experiment:
     def plot_loss(self, report):
         return report.sort_values(by=['train/iteration', 'train/update_idx']).reset_index()['train/loss'].plot()
 
+    def save_fig(self, name):
+        plt.savefig(os.path.join(FIGURES_DIR, f'{self.full_experiment_name}_{name}.png'))
+
     def train_for(self, epochs=None):
         report = self.trainer.train(epochs=epochs)
+        self.concat_report = pd.concat([self.concat_report, report])
         return report

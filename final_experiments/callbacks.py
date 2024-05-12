@@ -29,6 +29,7 @@ class LogSaveModelEvaluateCallback(TrainCallback):
 
         start_time_str = self.start_time.strftime("%y-%m-%d-%H-%M-%S")
         self.save_model_path = model_save_path_prefix + "_model_" + start_time_str + ".pt"
+        self.save_model_checkpoint_path = model_save_path_prefix + start_time_str + "checkpoint_"
         self.save_best_model_path = model_save_path_prefix + "_model_" + start_time_str + "_best.pt"
         self.save_csv_path = log_save_path_prefix + "_log_" + start_time_str + ".csv"
         self.save_eval_csv_path = log_save_path_prefix + "_eval_log_" + start_time_str + ".csv"
@@ -78,6 +79,10 @@ class LogSaveModelEvaluateCallback(TrainCallback):
         if self.iters % self.config.model_checkpoint_interval == 0:
             print("saving current model at: " + self.save_model_path)
             torch.save(model.state_dict(), self.save_model_path)
+            cpath = f'{self.save_model_checkpoint_path}_{self.iters}.pt'
+            print("saving checkpoint model at: " + cpath)
+            torch.save(model.state_dict(), cpath)
+
             if self.loss_best_model_saved > loss:
                 print("saving best model at: " + self.save_best_model_path)
                 self.loss_best_model_saved = loss
@@ -127,6 +132,11 @@ class LogSaveModelEvaluateCallback(TrainCallback):
     def finish_training(self, model, report):
         print("saving current model at: " + self.save_model_path)
         torch.save(model.state_dict(), self.save_model_path)
+        cpath = f'{self.save_model_checkpoint_path}_{self.iters}.pt'
+        print("saving checkpoint model at: " + cpath)
+        cpath = f'{self.save_model_checkpoint_path}_{self.iters}_final.pt'
+        print("saving final checkpoint model at: " + cpath)
+        torch.save(model.state_dict(), cpath)
 
         if len(self.eval_results_data) > 0:
             df = pd.DataFrame(self.eval_results_data)
