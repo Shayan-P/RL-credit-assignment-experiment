@@ -27,7 +27,6 @@ class TrainCallback:
 class Trainer:
     def __init__(self, name, model, optimizer, loss_fn, dataset: Dataset,
                  device, config: TrainConfig, scheduler=None):
-        # LimitedContextWrapper(traj_dataset, context_len=config.context_len)
         self.name = name
         self.model = model
         self.optimizer = optimizer

@@ -17,7 +17,7 @@ from algorithms.sequence_models.config import TrainConfig
 from algorithms.sequence_models.decision_transformer.decision_transformer import DecisionTransformer
 from algorithms.sequence_models.decision_transformer.trainer import TrainerDT
 from algorithms.sequence_models.trainer import TrainCallback
-from data.trajectory import TrajectoryDataset, LimitedContextWrapper
+from data.trajectory import TrajectoryDataset, LimitedContextWrapper, LimitedContextWrapperSortedLength
 from final_experiments.callbacks import LogSaveModelEvaluateCallback
 from settings import LOG_DIR, cd_mkdir, FIGURES_DIR
 
@@ -95,7 +95,7 @@ class Experiment:
         ###############################################################
         # todo later change LimitedContextWrapper to something more general for S4 and DT
         # todo later we can change this trainer
-        self.dataset = LimitedContextWrapper(traj_dataset, context_len=config.context_len)
+        self.dataset = LimitedContextWrapperSortedLength(traj_dataset, context_len=config.context_len, batch_size=config.batch_size)
         self.trainer = TrainerDT(name=experiment_name, model=self.model,
                                  optimizer=optimizer, loss_fn=loss_fn,
                                  dataset=self.dataset,
