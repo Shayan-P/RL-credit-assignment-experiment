@@ -85,7 +85,7 @@ try:
         z = _c2r(z)
         w = _c2r(w)
 
-        r = 2*cauchy_mult(v, z, w, backend='CPU')
+        r = 2*cauchy_mult(v, z, w, backend='GPU')
         return _r2c(r)
 
     def log_vandermonde_keops(v, x, L):
