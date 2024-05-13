@@ -44,7 +44,7 @@ class RandomPolicy(BasePolicy):
         if not isinstance(obs, torch.Tensor): # should be primitives right?
             obs = torch.tensor(obs)
         if len(obs.shape) == len(self.ob_space.shape): # no vectorization:
-            return self.ac_space.sample(), {}
+            return self.ac_space.sample()
         else:
             l = len(self.ob_space.shape)
             assert len(obs.shape) == l+1

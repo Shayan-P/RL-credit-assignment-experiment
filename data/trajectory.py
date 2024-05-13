@@ -128,7 +128,7 @@ class TrajectoryDataset:
         observation, info = env.reset()
         observations, actions, rewards, dones = [], [], [], []
         for _ in range(step_limit):
-            action, info = policy.predict(observation)
+            action = policy.predict(observation)
             action = action.item()
             observations.append(observation)
             actions.append(action)
